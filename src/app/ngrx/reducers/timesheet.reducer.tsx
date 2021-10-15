@@ -52,6 +52,7 @@ const _timesheetReducer = createReducer(
       );
     return {
       ..._state,
+      allChecked: true,
     };
   }),
   on(onItemChecked, (_state: ITimeSheetState, { id, checked }) => {
@@ -217,7 +218,7 @@ const _timesheetReducer = createReducer(
       ...state,
       list,
       setOfCheckedId,
-      allChecked: false
+      allChecked: false,
     };
   })
 );

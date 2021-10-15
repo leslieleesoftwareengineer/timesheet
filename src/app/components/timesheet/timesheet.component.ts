@@ -24,6 +24,10 @@ export class TimesheetComponent implements OnInit {
   loading$: Observable<any> = this.store.select(state => state.timesheet.loading);
   disabedNewButton$: Observable<any> = this.store.pipe(map(state => selectDisabledNewButton(state)));
   validateForm!: FormGroup;
+  disabledCheckAll$: Observable<any> = this.store.select(state => state.timesheet.list).pipe(map(item => item.every(item => item.state === TimesheetStateType.Submitted)));
+  disabledSubmit$: Observable<any> = this.store.select(state => state.timesheet).pipe(map(timesheet => {
+    return timesheet.setOfCheckedId.size === 0 || Object.keys(timesheet.editCache).some(key => timesheet.editCache[key].edit)
+  }));
 
   typeOptions = [
     {

@@ -2,12 +2,18 @@
   padding: 20px;
 }
 
-.button-container{
-    margin-bottom: 16px;
+.button-container {
+  margin-bottom: 16px;
 }
 
 .th-action {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.tr-disabled {
+  td {
+    background: #dcdcdc;
+    color: #808080;
+  }
 }

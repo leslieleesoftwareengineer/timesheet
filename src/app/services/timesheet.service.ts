@@ -15,6 +15,36 @@ const INITIAL_LIST: ITimesheetRespones[] = [
     hourlyRate: 250,
     total: 252.75,
     state: TimesheetStateType.Active,
+  }, {
+    id: 2,
+    date: "10/15/2021",
+    title: "Task1",
+    timesheetType: TimesheetType.DraftingDocument,
+    durationHours: 2,
+    durationMinutes: 20,
+    hourlyRate: 250,
+    total: 252.75,
+    state: TimesheetStateType.Active,
+  }, {
+    id: 3,
+    date: "10/15/2021",
+    title: "Task1",
+    timesheetType: TimesheetType.DraftingDocument,
+    durationHours: 2,
+    durationMinutes: 20,
+    hourlyRate: 250,
+    total: 252.75,
+    state: TimesheetStateType.Active,
+  }, {
+    id: 4,
+    date: "10/15/2021",
+    title: "Task1",
+    timesheetType: TimesheetType.DraftingDocument,
+    durationHours: 2,
+    durationMinutes: 20,
+    hourlyRate: 250,
+    total: 252.75,
+    state: TimesheetStateType.Submitted,
   }
 ];
 
@@ -30,7 +60,7 @@ export class TimesheetService {
       setTimeout(() => {
         subscriber.next(INITIAL_LIST);
         subscriber.complete();
-      }, 0);
+      }, Math.random() * 3000);
     });
     return ob;
   }

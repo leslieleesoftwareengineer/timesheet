@@ -13,7 +13,7 @@
         nz-button
         (click)="sumbitTimesheet()"
         nzType="primary"
-        [disabled]="(setOfCheckedId$ | async).size === 0"
+        [disabled]="disabledSubmit$ | async"
       >
         Submit</button
       >&nbsp;
@@ -31,9 +31,10 @@
         <tr>
           <th
             width="100px"
-            [nzChecked]="(allChecked$ | async)"
-            [nzIndeterminate]="(indeterminate$ | async)"
+            [nzChecked]="allChecked$ | async"
+            [nzIndeterminate]="indeterminate$ | async"
             (nzCheckedChange)="onAllChecked($event)"
+            [nzDisabled]="disabledCheckAll$ | async"
           ></th>
           <th width="100px">State</th>
           <th width="200px">Date</th>
@@ -46,7 +47,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let data of basicTable.data">
+        <tr
+          *ngFor="let data of basicTable.data"
+          [class.tr-disabled]="!isTimesheetActive(data.state)"
+        >
           <ng-container
             *ngIf="!(editCache$ | async)[data.id].edit; else editTemplate"
           >
@@ -55,7 +59,13 @@
               [nzDisabled]="!isTimesheetActive(data.state)"
               (nzCheckedChange)="onItemChecked(data.id, $event)"
             ></td>
-            <td>{{ data.state }}</td>
+            <td>
+              <span
+                nz-typography
+                [nzType]="!isTimesheetActive(data.state) ? 'success' : ''"
+                >{{ data.state }}</span
+              >
+            </td>
             <td>{{ data.date }}</td>
             <td>{{ data.title }}</td>
             <td>{{ data.timesheetType }}</td>
@@ -68,6 +78,7 @@
                 nzType="default"
                 nzShape="circle"
                 (click)="startEdit(data.id)"
+                [disabled]="!isTimesheetActive(data.state)"
               >
                 <i nz-icon nzType="edit" nzTheme="outline"></i>
               </button>
@@ -79,6 +90,8 @@
                 nz-popconfirm
                 nzPopconfirmTitle="Sure to delete?"
                 (nzOnConfirm)="delete(data.id)"
+                [disabled]="!isTimesheetActive(data.state)"
+                nzDanger
               >
                 <i nz-icon nzType="delete" nzTheme="outline"></i>
               </button>
@@ -87,10 +100,19 @@
           <ng-template #editTemplate>
             <td
               [nzChecked]="(setOfCheckedId$ | async).has(data.id)"
-              [nzDisabled]="!isTimesheetActive(data.state)"
+              [nzDisabled]="
+                !isTimesheetActive(data.state) ||
+                (editCache$ | async)[data.id].edit
+              "
               (nzCheckedChange)="onItemChecked(data.id, $event)"
             ></td>
-            <td>{{ data.state }}</td>
+            <td>
+              <span
+                nz-typography
+                [nzType]="!isTimesheetActive(data.state) ? 'success' : ''"
+                >{{ data.state }}</span
+              >
+            </td>
             <td>
               {{ data.date }}
             </td>
