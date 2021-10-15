@@ -2,24 +2,29 @@
   <nz-card nzTitle="Timesheet">
     <div class="button-container">
       <button nz-button nzType="primary">New</button>&nbsp;
-      <button nz-button nzType="primary" [disabled]="setOfCheckedId.size === 0">
+      <button
+        nz-button
+        nzType="primary"
+        [disabled]="(setOfCheckedId$ | async).size === 0"
+      >
         Submit</button
       >&nbsp;
-      <span>Selected {{ setOfCheckedId.size }} rows</span>
+      <span>Selected {{ (setOfCheckedId$ | async).size }} rows</span>
     </div>
     <nz-table
       nzShowPagination
       nzShowSizeChanger
+      [nzLoading]="loading$ | async"
       #basicTable
-      [nzData]="listOfData"
+      [nzData]="listOfData$ | async"
       (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
     >
       <thead>
         <tr>
           <th
             width="100px"
-            [nzChecked]="checked"
-            [nzIndeterminate]="indeterminate"
+            [nzChecked]="allChecked$ | async"
+            [nzIndeterminate]="indeterminate$ | async"
             (nzCheckedChange)="onAllChecked($event)"
           ></th>
           <th width="100px">State</th>
@@ -34,16 +39,18 @@
       </thead>
       <tbody>
         <tr *ngFor="let data of basicTable.data">
-          <ng-container *ngIf="!editCache[data.id].edit; else editTemplate">
+          <ng-container
+            *ngIf="!(editCache$ | async)[data.id].edit; else editTemplate"
+          >
             <td
-              [nzChecked]="setOfCheckedId.has(data.id)"
+              [nzChecked]="(setOfCheckedId$ | async).has(data.id)"
               [nzDisabled]="!isTimesheetActive(data.state)"
               (nzCheckedChange)="onItemChecked(data.id, $event)"
             ></td>
             <td>{{ data.state }}</td>
             <td>{{ data.date }}</td>
             <td>{{ data.title }}</td>
-            <td>{{ data.type }}</td>
+            <td>{{ data.timesheetType }}</td>
             <td>{{ data.duration }}</td>
             <td>{{ data.hourlyRate }}</td>
             <td>{{ data.total }}</td>
@@ -72,7 +79,7 @@
 
           <ng-template #editTemplate>
             <td
-              [nzChecked]="setOfCheckedId.has(data.id)"
+              [nzChecked]="(setOfCheckedId$ | async).has(data.id)"
               [nzDisabled]="!isTimesheetActive(data.state)"
               (nzCheckedChange)="onItemChecked(data.id, $event)"
             ></td>
@@ -84,13 +91,17 @@
               <input
                 type="text"
                 nz-input
-                [(ngModel)]="editCache[data.id].data.title"
+                [ngModel]="(editCache$ | async)[data.id].data.title"
+                (ngModelChange)="onEditModelChange({ title: $event }, data)"
               />
             </td>
             <td>
               <nz-select
                 style="width: 100%"
-                [(ngModel)]="editCache[data.id].data.type"
+                [ngModel]="(editCache$ | async)[data.id].data.timesheetType"
+                (ngModelChange)="
+                  onEditModelChange({ timesheetType: $event }, data)
+                "
               >
                 <nz-option
                   *ngFor="let option of typeOptions"
@@ -102,7 +113,10 @@
             <td>
               <nz-select
                 style="width: 100px"
-                [(ngModel)]="editCache[data.id].data.type"
+                [ngModel]="(editCache$ | async)[data.id].data.durationHours"
+                (ngModelChange)="
+                  onEditModelChange({ durationHours: $event }, data)
+                "
                 nzPlaceHolder="Hours"
               >
                 <nz-option
@@ -115,7 +129,10 @@
               <nz-select
                 style="width: 100px"
                 nzPlaceHolder="Minutes"
-                [(ngModel)]="editCache[data.id].data.type"
+                [ngModel]="(editCache$ | async)[data.id].data.durationMinutes"
+                (ngModelChange)="
+                  onEditModelChange({ durationMinutes: $event }, data)
+                "
               >
                 <nz-option
                   *ngFor="let hour of mins; index as i"
@@ -126,7 +143,10 @@
             </td>
             <td>
               <nz-input-number
-                [(ngModel)]="editCache[data.id].data.hourlyRate"
+                [ngModel]="(editCache$ | async)[data.id].data.hourlyRate"
+                (ngModelChange)="
+                  onEditModelChange({ hourlyRate: $event }, data)
+                "
                 [nzMin]="1"
                 [nzMax]="10"
                 [nzStep]="1"
