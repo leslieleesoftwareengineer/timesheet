@@ -14,6 +14,7 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzFormModule } from 'ng-zorro-antd/form';
 
 @NgModule({
   declarations: [TimesheetComponent],
@@ -30,7 +31,8 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
     NzPopconfirmModule,
     NzSelectModule,
     NzInputNumberModule,
-    NzTimePickerModule
+    NzTimePickerModule,
+    NzFormModule
   ]
 })
 export class TimesheetModule { }

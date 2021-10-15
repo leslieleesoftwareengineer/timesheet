@@ -6,14 +6,20 @@ import {
   IEditCache,
   ITimeSheetState,
 } from "src/app/domain/interfaces/timesheetState";
+import { calcTotalSalary } from "src/app/helpers/timesheet.helper";
 import {
+  cancelEdit,
+  deleteTimesheet,
   loadTimesheet,
   loadTimesheetError,
   loadTimesheetSuccess,
+  newTimesheet,
   onAllChecked,
   onEditModelChange,
   onItemChecked,
+  saveEdit,
   startEdit,
+  sumbitTimesheet,
 } from "../actions/timesheet.action";
 
 export const initialState: ITimeSheetState = {
@@ -77,18 +83,23 @@ const _timesheetReducer = createReducer(
       loading: true,
     };
   }),
-  on(onEditModelChange, (state, { data }) => {
-    console.log(data);
+  on(onEditModelChange, (state, { id, data }) => {
     const editCache = { ...state.editCache };
-    editCache[data.id] = {
+    const _data = { ...editCache[id].data, ...data };
+    editCache[id] = {
       data: {
-        ...editCache[data.id].data,
-        total: data.total,
+        ..._data,
+        total: calcTotalSalary(
+          _data.durationHours,
+          _data.durationMinutes,
+          _data.hourlyRate
+        ),
       },
       edit: true,
     };
     return {
       ...state,
+      editCache,
     };
   }),
   on(loadTimesheet, (state) => {
@@ -116,6 +127,97 @@ const _timesheetReducer = createReducer(
     return {
       ...state,
       loading: false,
+    };
+  }),
+  on(saveEdit, (state, { id }) => {
+    const list = state.list.map((item) => {
+      return item.id === id
+        ? { ...state.editCache[id].data }
+        : {
+            ...item,
+          };
+    });
+    const editCache = { ...state.editCache };
+    editCache[id] = {
+      data: {
+        ...editCache[id].data,
+      },
+      edit: false,
+    };
+    return {
+      ...state,
+      list,
+      editCache,
+    };
+  }),
+  on(deleteTimesheet, (state, { id }) => {
+    const list = state.list.filter((item) => item.id !== id);
+    let editCache: IEditCache = {};
+    list.forEach((item) => {
+      editCache[item.id] = {
+        edit: false,
+        data: { ...item },
+      };
+    });
+    return {
+      ...state,
+      list,
+      editCache,
+    };
+  }),
+  on(cancelEdit, (state, { id }) => {
+    const editCache = {
+      ...state.editCache,
+      [id]: {
+        edit: false,
+        data: { ...state.list[state.list.findIndex((item) => item.id === id)] },
+      },
+    };
+    return {
+      ...state,
+      editCache,
+    };
+  }),
+  on(newTimesheet, (state) => {
+    const list = [
+      {
+        id: state.list.length + 1,
+        date: "10/15/2021",
+        title: "Task1",
+        timesheetType: TimesheetType.DraftingDocument,
+        durationHours: 1,
+        durationMinutes: 0,
+        hourlyRate: 250,
+        total: 250,
+        state: TimesheetStateType.Active,
+        duration: "1:00",
+      },
+    ].concat(state.list);
+    let editCache: IEditCache = {};
+    list.forEach((item, i) => {
+      editCache[item.id] = {
+        edit: i === 0,
+        data: { ...item },
+      };
+    });
+    return {
+      ...state,
+      list,
+      editCache,
+    };
+  }),
+  on(sumbitTimesheet, (state) => {
+    const list = state.list.map((item) =>
+      state.setOfCheckedId.has(item.id)
+        ? { ...item, state: TimesheetStateType.Submitted }
+        : { ...item }
+    );
+    const setOfCheckedId = new Set<number>();
+    return {
+      ...state,
+      list,
+      setOfCheckedId,
+      allChecked: false
     };
   })
 );

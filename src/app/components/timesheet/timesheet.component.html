@@ -1,9 +1,17 @@
 <div class="timesheet-container">
   <nz-card nzTitle="Timesheet">
     <div class="button-container">
-      <button nz-button nzType="primary">New</button>&nbsp;
       <button
         nz-button
+        nzType="primary"
+        (click)="newTimesheet()"
+        [disabled]="disabedNewButton$ | async"
+      >
+        New</button
+      >&nbsp;
+      <button
+        nz-button
+        (click)="sumbitTimesheet()"
         nzType="primary"
         [disabled]="(setOfCheckedId$ | async).size === 0"
       >
@@ -23,8 +31,8 @@
         <tr>
           <th
             width="100px"
-            [nzChecked]="allChecked$ | async"
-            [nzIndeterminate]="indeterminate$ | async"
+            [nzChecked]="(allChecked$ | async)"
+            [nzIndeterminate]="(indeterminate$ | async)"
             (nzCheckedChange)="onAllChecked($event)"
           ></th>
           <th width="100px">State</th>
@@ -70,13 +78,12 @@
                 nzShape="circle"
                 nz-popconfirm
                 nzPopconfirmTitle="Sure to delete?"
-                (nzOnConfirm)="startEdit(data.id)"
+                (nzOnConfirm)="delete(data.id)"
               >
                 <i nz-icon nzType="delete" nzTheme="outline"></i>
               </button>
             </td>
           </ng-container>
-
           <ng-template #editTemplate>
             <td
               [nzChecked]="(setOfCheckedId$ | async).has(data.id)"
@@ -89,18 +96,20 @@
             </td>
             <td>
               <input
+                name="title"
                 type="text"
                 nz-input
                 [ngModel]="(editCache$ | async)[data.id].data.title"
-                (ngModelChange)="onEditModelChange({ title: $event }, data)"
+                (ngModelChange)="onEditModelChange({ title: $event }, data.id)"
               />
             </td>
             <td>
               <nz-select
+                name="timesheetType"
                 style="width: 100%"
                 [ngModel]="(editCache$ | async)[data.id].data.timesheetType"
                 (ngModelChange)="
-                  onEditModelChange({ timesheetType: $event }, data)
+                  onEditModelChange({ timesheetType: $event }, data.id)
                 "
               >
                 <nz-option
@@ -112,10 +121,11 @@
             </td>
             <td>
               <nz-select
+                name="durationHours"
                 style="width: 100px"
                 [ngModel]="(editCache$ | async)[data.id].data.durationHours"
                 (ngModelChange)="
-                  onEditModelChange({ durationHours: $event }, data)
+                  onEditModelChange({ durationHours: $event }, data.id)
                 "
                 nzPlaceHolder="Hours"
               >
@@ -127,11 +137,12 @@
               </nz-select>
               <nz-divider nzType="vertical"></nz-divider>
               <nz-select
+                name="durationMinutes"
                 style="width: 100px"
                 nzPlaceHolder="Minutes"
                 [ngModel]="(editCache$ | async)[data.id].data.durationMinutes"
                 (ngModelChange)="
-                  onEditModelChange({ durationMinutes: $event }, data)
+                  onEditModelChange({ durationMinutes: $event }, data.id)
                 "
               >
                 <nz-option
@@ -143,16 +154,16 @@
             </td>
             <td>
               <nz-input-number
+                name="hourlyRate"
                 [ngModel]="(editCache$ | async)[data.id].data.hourlyRate"
                 (ngModelChange)="
-                  onEditModelChange({ hourlyRate: $event }, data)
+                  onEditModelChange({ hourlyRate: $event }, data.id)
                 "
                 [nzMin]="1"
-                [nzMax]="10"
-                [nzStep]="1"
+                [nzStep]="0.1"
               ></nz-input-number>
             </td>
-            <td>{{ data.total }}</td>
+            <td>{{ (editCache$ | async)[data.id].data.total }}</td>
             <td>
               <button
                 nz-button

@@ -1,4 +1,3 @@
-import { createSelector } from "@ngrx/store";
 import { TimesheetStateType } from "src/app/domain/enums/timesheetStateType";
 import { IAppState } from "src/app/domain/interfaces/appState";
 
@@ -15,4 +14,9 @@ export const selectIndeterminate = (state: IAppState) => {
       state.timesheet.setOfCheckedId.has(id)
     ) && !checked
   );
+};
+
+export const selectDisabledNewButton = (state: IAppState) => {
+  const editCache = state.timesheet.editCache;
+  return !Object.keys(editCache).every((key) => editCache[key].edit === false);
 };

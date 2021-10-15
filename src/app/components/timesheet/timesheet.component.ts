@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { select, Store } from '@ngrx/store';
+import { FormGroup } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TimesheetStateType } from 'src/app/domain/enums/timesheetStateType';
 import { TimesheetType } from 'src/app/domain/enums/timesheetType';
 import { ITimesheet } from 'src/app/domain/interfaces/timesheet';
 import { ITimeSheetState } from 'src/app/domain/interfaces/timesheetState';
-import { loadTimesheet, LOAD_TIMESHEET, onAllChecked, onEditModelChange, onItemChecked, startEdit } from 'src/app/ngrx/actions/timesheet.action';
-import { selectIndeterminate } from 'src/app/ngrx/selectors/timesheet.selector';
+import { cancelEdit, deleteTimesheet, loadTimesheet, newTimesheet, onAllChecked, onEditModelChange, onItemChecked, saveEdit, startEdit, sumbitTimesheet } from 'src/app/ngrx/actions/timesheet.action';
+import { selectDisabledNewButton, selectIndeterminate } from 'src/app/ngrx/selectors/timesheet.selector';
 
 @Component({
   selector: 'app-timesheet',
@@ -21,6 +22,8 @@ export class TimesheetComponent implements OnInit {
   allChecked$: Observable<any> = this.store.select(state => state.timesheet.allChecked);
   indeterminate$: Observable<any> = this.store.pipe(map(state => selectIndeterminate(state)));
   loading$: Observable<any> = this.store.select(state => state.timesheet.loading);
+  disabedNewButton$: Observable<any> = this.store.pipe(map(state => selectDisabledNewButton(state)));
+  validateForm!: FormGroup;
 
   typeOptions = [
     {
@@ -52,47 +55,40 @@ export class TimesheetComponent implements OnInit {
     this.store.dispatch(startEdit({ id }))
   }
 
+  submitForm(a: any) {
+    console.log(a)
+  }
+
   cancelEdit(id: number): void {
-    // const index = this.listOfData.findIndex(item => item.id === id);
-    // this.editCache[id] = {
-    //   data: { ...this.listOfData[index] },
-    //   edit: false
-    // };
+    this.store.dispatch(cancelEdit({ id }))
+  }
+
+  newTimesheet() {
+    this.store.dispatch(newTimesheet())
   }
 
   saveEdit(id: number): void {
-    // const index = this.listOfData.findIndex(item => item.id === id);
-    // Object.assign(this.listOfData[index], this.editCache[id].data);
-    // this.editCache[id].edit = false;
+    this.store.dispatch(saveEdit({ id }))
   }
 
-  updateEditCache(): void {
-    // this.listOfData.forEach(item => {
-    //   this.editCache[item.id] = {
-    //     edit: false,
-    //     data: { ...item }
-    //   };
-    // });
+  delete(id: number) {
+    this.store.dispatch(deleteTimesheet({ id }))
+  }
+
+  sumbitTimesheet() {
+    this.store.dispatch(sumbitTimesheet())
   }
 
   onAllChecked(checked: boolean): void {
     this.store.dispatch(onAllChecked({ checked }))
-    // this.listOfData
-    //   .filter(({ state }) => state === TimesheetStateType.Active)
-    //   .forEach(({ id }) => this.updateCheckedSet(id, checked));
-    // this.refreshCheckedStatus();
   }
-
 
   onItemChecked(id: number, checked: boolean): void {
     this.store.dispatch(onItemChecked({ id, checked }))
-    // this.updateCheckedSet(id, checked);
-    // this.refreshCheckedStatus();
   }
 
-  onEditModelChange(value: any, data: ITimesheet) {
-    console.log({ ...data, ...value })
-    this.store.dispatch(onEditModelChange({ data: { ...data, ...value } }))
+  onEditModelChange(data: any, id: number) {
+    this.store.dispatch(onEditModelChange({ id, data }))
   }
 
   isTimesheetActive(type: TimesheetStateType) {

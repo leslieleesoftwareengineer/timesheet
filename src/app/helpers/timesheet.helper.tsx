@@ -11,5 +11,7 @@ export function calcTotalSalary(
   minutes: number,
   hourlyRate: number
 ): number {
-  return hours + minutesRoundUp(minutes) / 60 + hourlyRate;
+  return Number(
+    ((hours + minutesRoundUp(minutes) / 60) * hourlyRate).toFixed(2)
+  );
 }

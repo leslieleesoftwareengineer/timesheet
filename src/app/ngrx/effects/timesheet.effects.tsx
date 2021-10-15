@@ -1,16 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { EMPTY, of } from "rxjs";
-import { map, mergeMap, catchError, mapTo } from "rxjs/operators";
-import { ITimesheet } from "src/app/domain/interfaces/timesheet";
+import { of } from "rxjs";
+import { catchError, map, mergeMap } from "rxjs/operators";
 import { toDurationString } from "src/app/helpers/timesheet.helper";
 import { TimesheetService } from "src/app/services/timesheet.service";
 import {
   LOAD_TIMESHEET,
   LOAD_TIMESHEET_ERROR,
-  LOAD_TIMESHEET_SUCCESS,
-  ON_EDIT_MODEL_CHANGE,
-  ON_EDIT_MODEL_CHANGE_COMPLETED,
+  LOAD_TIMESHEET_SUCCESS
 } from "../actions/timesheet.action";
 
 @Injectable()
