@@ -6,7 +6,10 @@ import {
   IEditCache,
   ITimeSheetState,
 } from "src/app/domain/interfaces/timesheetState";
-import { calcTotalSalary } from "src/app/helpers/timesheet.helper";
+import {
+  calcTotalSalary,
+  toDurationString,
+} from "src/app/helpers/timesheet.helper";
 import {
   cancelEdit,
   deleteTimesheet,
@@ -95,6 +98,7 @@ const _timesheetReducer = createReducer(
           _data.durationMinutes,
           _data.hourlyRate
         ),
+        duration: toDurationString(_data.durationHours, _data.durationMinutes),
       },
       edit: true,
     };
@@ -133,7 +137,9 @@ const _timesheetReducer = createReducer(
   on(saveEdit, (state, { id }) => {
     const list = state.list.map((item) => {
       return item.id === id
-        ? { ...state.editCache[id].data }
+        ? {
+            ...state.editCache[id].data,
+          }
         : {
             ...item,
           };
