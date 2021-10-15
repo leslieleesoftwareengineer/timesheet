@@ -62,7 +62,9 @@
             <td>
               <span
                 nz-typography
-                [nzType]="!isTimesheetActive(data.state) ? 'success' : ''"
+                [nzType]="
+                  !isTimesheetActive(data.state) ? 'success' : undefined
+                "
                 >{{ data.state }}</span
               >
             </td>
@@ -107,11 +109,7 @@
               (nzCheckedChange)="onItemChecked(data.id, $event)"
             ></td>
             <td>
-              <span
-                nz-typography
-                [nzType]="!isTimesheetActive(data.state) ? 'success' : ''"
-                >{{ data.state }}</span
-              >
+              {{ data.state }}
             </td>
             <td>
               {{ data.date }}
