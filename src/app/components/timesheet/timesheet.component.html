@@ -1,0 +1,164 @@
+<div class="timesheet-container">
+  <nz-card nzTitle="Timesheet">
+    <div class="button-container">
+      <button nz-button nzType="primary">New</button>&nbsp;
+      <button nz-button nzType="primary" [disabled]="setOfCheckedId.size === 0">
+        Submit</button
+      >&nbsp;
+      <span>Selected {{ setOfCheckedId.size }} rows</span>
+    </div>
+    <nz-table
+      nzShowPagination
+      nzShowSizeChanger
+      #basicTable
+      [nzData]="listOfData"
+      (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+    >
+      <thead>
+        <tr>
+          <th
+            width="100px"
+            [nzChecked]="checked"
+            [nzIndeterminate]="indeterminate"
+            (nzCheckedChange)="onAllChecked($event)"
+          ></th>
+          <th width="100px">State</th>
+          <th width="200px">Date</th>
+          <th>Title</th>
+          <th width="200px">Type</th>
+          <th width="250px">Duration</th>
+          <th width="100px">Hourly Rate</th>
+          <th width="100px">Total</th>
+          <th width="200px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data">
+          <ng-container *ngIf="!editCache[data.id].edit; else editTemplate">
+            <td
+              [nzChecked]="setOfCheckedId.has(data.id)"
+              [nzDisabled]="!isTimesheetActive(data.state)"
+              (nzCheckedChange)="onItemChecked(data.id, $event)"
+            ></td>
+            <td>{{ data.state }}</td>
+            <td>{{ data.date }}</td>
+            <td>{{ data.title }}</td>
+            <td>{{ data.type }}</td>
+            <td>{{ data.duration }}</td>
+            <td>{{ data.hourlyRate }}</td>
+            <td>{{ data.total }}</td>
+            <td>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                (click)="startEdit(data.id)"
+              >
+                <i nz-icon nzType="edit" nzTheme="outline"></i>
+              </button>
+              <nz-divider nzType="vertical"></nz-divider>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                nz-popconfirm
+                nzPopconfirmTitle="Sure to delete?"
+                (nzOnConfirm)="startEdit(data.id)"
+              >
+                <i nz-icon nzType="delete" nzTheme="outline"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-template #editTemplate>
+            <td
+              [nzChecked]="setOfCheckedId.has(data.id)"
+              [nzDisabled]="!isTimesheetActive(data.state)"
+              (nzCheckedChange)="onItemChecked(data.id, $event)"
+            ></td>
+            <td>{{ data.state }}</td>
+            <td>
+              {{ data.date }}
+            </td>
+            <td>
+              <input
+                type="text"
+                nz-input
+                [(ngModel)]="editCache[data.id].data.title"
+              />
+            </td>
+            <td>
+              <nz-select
+                style="width: 100%"
+                [(ngModel)]="editCache[data.id].data.type"
+              >
+                <nz-option
+                  *ngFor="let option of typeOptions"
+                  [nzValue]="option.value"
+                  [nzLabel]="option.label"
+                ></nz-option>
+              </nz-select>
+            </td>
+            <td>
+              <nz-select
+                style="width: 100px"
+                [(ngModel)]="editCache[data.id].data.type"
+                nzPlaceHolder="Hours"
+              >
+                <nz-option
+                  *ngFor="let hour of hours; index as i"
+                  [nzValue]="i + 1"
+                  [nzLabel]="i + 1 + ' hr(s)'"
+                ></nz-option>
+              </nz-select>
+              <nz-divider nzType="vertical"></nz-divider>
+              <nz-select
+                style="width: 100px"
+                nzPlaceHolder="Minutes"
+                [(ngModel)]="editCache[data.id].data.type"
+              >
+                <nz-option
+                  *ngFor="let hour of mins; index as i"
+                  [nzValue]="i"
+                  [nzLabel]="i + ' min(s)'"
+                ></nz-option>
+              </nz-select>
+            </td>
+            <td>
+              <nz-input-number
+                [(ngModel)]="editCache[data.id].data.hourlyRate"
+                [nzMin]="1"
+                [nzMax]="10"
+                [nzStep]="1"
+              ></nz-input-number>
+            </td>
+            <td>{{ data.total }}</td>
+            <td>
+              <button
+                nz-button
+                nzType="primary"
+                nzShape="circle"
+                nz-popconfirm
+                nzPopconfirmTitle="Sure to save?"
+                (nzOnConfirm)="saveEdit(data.id)"
+              >
+                <i nz-icon nzType="save" nzTheme="outline"></i>
+              </button>
+              <nz-divider nzType="vertical"></nz-divider>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                nz-popconfirm
+                nzPopconfirmTitle="Sure to cancel?"
+                (nzOnConfirm)="cancelEdit(data.id)"
+              >
+                <i nz-icon nzType="rollback" nzTheme="outline"></i>
+              </button>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</div>
